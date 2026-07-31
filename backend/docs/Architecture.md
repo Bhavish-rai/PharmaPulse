@@ -1,43 +1,55 @@
-# MediStock AI Architecture
+# API Documentation
 
-```
-Frontend
-     │
-     ▼
-Node.js + Express
-     │
-     ▼
-Business Logic (MVC)
-     │
-     ▼
-PostgreSQL
-     │
-     ▼
-Redis Cache
-```
+## Add Medicine
 
-## Components
+POST /api/medicines
 
-### Frontend
+Adds a new medicine.
 
-User interface for pharmacists and customers.
+---
 
-### Backend
+## Update Stock
 
-Handles business logic and REST APIs.
+PUT /api/medicines/:id/stock
 
-### PostgreSQL
+Updates medicine stock.
 
-Stores users, medicines, categories, orders and order items.
+---
 
-### Redis
+## Get Medicines
 
-Used for:
+GET /api/medicines
 
-- Caching medicines
-- Concurrency handling
-- Queue management
+Returns all medicines.
 
-### Event Driven
+---
 
-Low stock notifications are generated whenever stock falls below the threshold.
+## Place Order
+
+POST /api/orders
+
+Creates a new order.
+
+---
+
+## Get Order Details
+
+GET /api/orders/:id
+
+Returns order details.
+
+---
+
+## Low Stock Alert
+
+GET /api/alerts/low-stock
+
+Returns medicines below threshold.
+
+---
+
+## AI Recommendation
+
+POST /api/recommendations
+
+Returns alternative medicine recommendations.

@@ -1,15 +1,22 @@
 const pool = require("../config/db");
 const redis = require("../config/redis");
 
-const orderModel = require("../models/orderModel");
-const inventoryService = require("./inventoryService");
+const orderModel =
+    require("../models/orderModel");
 
-const placeOrder = async (userId, medicineList) => {
+const inventoryService =
+    require("./inventoryService");
+
+const placeOrder = async (
+    userId,
+    medicineList
+) => {
     const lockKeys = [];
 
     try {
         for (const item of medicineList) {
-            const key = `lock:medicine:${item.medicine_id}`;
+            const key =
+                `lock:medicine:${item.medicine_id}`;
 
             const lock = await redis.set(
                 key,
@@ -45,15 +52,16 @@ const placeOrder = async (userId, medicineList) => {
                         client
                     );
 
-                const itemTotal =
+                const subtotal =
                     Number(medicine.price) *
-                    item.quantity;
+                    Number(item.quantity);
 
-                totalAmount += itemTotal;
+                totalAmount += subtotal;
 
                 items.push({
                     medicine,
-                    quantity: item.quantity
+                    quantity: item.quantity,
+                    subtotal
                 });
             }
 
@@ -70,6 +78,7 @@ const placeOrder = async (userId, medicineList) => {
                     item.medicine.medicine_id,
                     item.quantity,
                     item.medicine.price,
+                    item.subtotal,
                     client
                 );
             }
@@ -80,14 +89,12 @@ const placeOrder = async (userId, medicineList) => {
                 order,
                 totalAmount
             };
-
         } catch (error) {
             await client.query("ROLLBACK");
             throw error;
         } finally {
             client.release();
         }
-
     } finally {
         for (const key of lockKeys) {
             await redis.del(key);
