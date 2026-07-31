@@ -1,16 +1,30 @@
 const Redis = require("ioredis");
 
-const redis = new Redis({
-    host: process.env.REDIS_HOST || "localhost",
-    port: process.env.REDIS_PORT || 6379,
-});
+let redis = null;
 
-redis.on("connect", () => {
-    console.log("Redis connected successfully");
-});
+try {
+    redis = new Redis({
+        host: process.env.REDIS_HOST || "localhost",
+        port: process.env.REDIS_PORT || 6379,
 
-redis.on("error", (err) => {
-    console.error("Redis connection error:", err.message);
-});
+        // Stop retrying after the first failure
+        retryStrategy() {
+            return null;
+        },
+
+        maxRetriesPerRequest: 1,
+    });
+
+    redis.on("connect", () => {
+        console.log("✅ Redis connected successfully");
+    });
+
+    redis.on("error", () => {
+        console.log("⚠ Redis not available. Running without Redis.");
+    });
+
+} catch (err) {
+    console.log("⚠ Redis initialization failed.");
+}
 
 module.exports = redis;
