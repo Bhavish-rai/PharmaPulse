@@ -11,10 +11,12 @@ const validateRequest =
 router.post(
     "/",
     validateRequest([
-        "name",
-        "category",
+        "medicine_name",
+        "category_id",
+        "manufacturer",
         "stock",
-        "price"
+        "price",
+        "expiry_date"
     ]),
     medicineController.addMedicine
 );

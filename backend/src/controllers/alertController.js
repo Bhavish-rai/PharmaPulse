@@ -7,10 +7,18 @@ const getLowStockMedicines = async (
 ) => {
     try {
         const result = await pool.query(`
-            SELECT *
+            SELECT
+                medicine_id,
+                medicine_name,
+                category_id,
+                manufacturer,
+                stock,
+                price,
+                expiry_date,
+                threshold
             FROM medicines
-            WHERE stock < 10
-            ORDER BY stock ASC
+            WHERE stock <= threshold
+            ORDER BY stock ASC;
         `);
 
         res.status(200).json({
@@ -18,7 +26,6 @@ const getLowStockMedicines = async (
             count: result.rows.length,
             data: result.rows
         });
-
     } catch (error) {
         next(error);
     }

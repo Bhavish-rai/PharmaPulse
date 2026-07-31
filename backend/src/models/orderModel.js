@@ -1,10 +1,18 @@
 const pool = require("../config/db");
 
-const createOrder = async (userId, totalAmount, client = pool) => {
+const createOrder = async (
+    userId,
+    totalAmount,
+    client = pool
+) => {
     const query = `
         INSERT INTO orders
-        (user_id, total_amount)
-        VALUES ($1, $2)
+        (
+            user_id,
+            total_amount,
+            status
+        )
+        VALUES ($1, $2, 'Pending')
         RETURNING *;
     `;
 
@@ -21,12 +29,19 @@ const addOrderItem = async (
     medicineId,
     quantity,
     price,
+    subtotal,
     client = pool
 ) => {
     const query = `
         INSERT INTO order_items
-        (order_id, medicine_id, quantity, price)
-        VALUES ($1, $2, $3, $4)
+        (
+            order_id,
+            medicine_id,
+            quantity,
+            price,
+            subtotal
+        )
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING *;
     `;
 
@@ -34,7 +49,8 @@ const addOrderItem = async (
         orderId,
         medicineId,
         quantity,
-        price
+        price,
+        subtotal
     ]);
 
     return result.rows[0];
@@ -43,14 +59,27 @@ const addOrderItem = async (
 const getOrderById = async (orderId) => {
     const query = `
         SELECT
-            o.*,
+            o.order_id,
+            o.user_id,
+            u.full_name,
+            o.total_amount,
+            o.status,
+            o.created_at,
+            oi.order_item_id,
             oi.medicine_id,
+            m.medicine_name,
             oi.quantity,
-            oi.price
+            oi.price,
+            oi.subtotal
         FROM orders o
+        JOIN users u
+            ON o.user_id = u.user_id
         LEFT JOIN order_items oi
             ON o.order_id = oi.order_id
+        LEFT JOIN medicines m
+            ON oi.medicine_id = m.medicine_id
         WHERE o.order_id = $1
+        ORDER BY oi.order_item_id;
     `;
 
     const result = await pool.query(query, [orderId]);

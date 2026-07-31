@@ -1,14 +1,38 @@
 const pool = require("../config/db");
 
-const addMedicine = async ({ name, category, stock, price }) => {
+const addMedicine = async ({
+    medicine_name,
+    category_id,
+    manufacturer,
+    stock,
+    price,
+    expiry_date,
+    threshold
+}) => {
     const query = `
         INSERT INTO medicines
-        (name, category, stock, price)
-        VALUES ($1, $2, $3, $4)
+        (
+            medicine_name,
+            category_id,
+            manufacturer,
+            stock,
+            price,
+            expiry_date,
+            threshold
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7, 20))
         RETURNING *;
     `;
 
-    const values = [name, category, stock, price];
+    const values = [
+        medicine_name,
+        category_id,
+        manufacturer,
+        stock,
+        price,
+        expiry_date,
+        threshold
+    ];
 
     const result = await pool.query(query, values);
 
@@ -17,24 +41,44 @@ const addMedicine = async ({ name, category, stock, price }) => {
 
 const getMedicines = async ({ category, search }) => {
     let query = `
-        SELECT *
-        FROM medicines
-        WHERE 1=1
+        SELECT
+            m.medicine_id,
+            m.medicine_name,
+            m.category_id,
+            c.category_name,
+            m.manufacturer,
+            m.stock,
+            m.price,
+            m.expiry_date,
+            m.threshold,
+            m.created_at
+        FROM medicines m
+        JOIN categories c
+            ON m.category_id = c.category_id
+        WHERE 1 = 1
     `;
 
     const values = [];
 
     if (category) {
         values.push(category);
-        query += ` AND category = $${values.length}`;
+
+        query += `
+            AND c.category_name ILIKE $${values.length}
+        `;
     }
 
     if (search) {
         values.push(`%${search}%`);
-        query += ` AND name ILIKE $${values.length}`;
+
+        query += `
+            AND m.medicine_name ILIKE $${values.length}
+        `;
     }
 
-    query += ` ORDER BY medicine_id DESC`;
+    query += `
+        ORDER BY m.medicine_id DESC
+    `;
 
     const result = await pool.query(query, values);
 
@@ -43,9 +87,21 @@ const getMedicines = async ({ category, search }) => {
 
 const getMedicineById = async (medicineId) => {
     const query = `
-        SELECT *
-        FROM medicines
-        WHERE medicine_id = $1
+        SELECT
+            m.medicine_id,
+            m.medicine_name,
+            m.category_id,
+            c.category_name,
+            m.manufacturer,
+            m.stock,
+            m.price,
+            m.expiry_date,
+            m.threshold,
+            m.created_at
+        FROM medicines m
+        JOIN categories c
+            ON m.category_id = c.category_id
+        WHERE m.medicine_id = $1;
     `;
 
     const result = await pool.query(query, [medicineId]);
