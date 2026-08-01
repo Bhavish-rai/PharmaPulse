@@ -8,12 +8,12 @@ const alertRoutes = require("./routes/alertRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
 
 const errorHandler = require("./middleware/errorHandler");
-
+const chatRoutes = require("./chat/chatRoutes");
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-
+app.use("/api/chat", chatRoutes);
 app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
