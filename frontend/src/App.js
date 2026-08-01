@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Dashboard from "./pages/Dashboard";
 import Medicines from "./pages/Medicines";
 import "./index.css";
-
+import ChatBot from "./components/ChatBot";
 const API_URL = "http://localhost:5000";
 
 function App() {
@@ -108,6 +108,7 @@ function App() {
                         onRefresh={fetchMedicines}
                     />
                 )}
+                <ChatBot />
             </main>
         </div>
     );

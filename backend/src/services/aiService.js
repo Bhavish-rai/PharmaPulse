@@ -1,39 +1,35 @@
 const medicineModel = require("../models/medicineModel");
 
 const recommendByMedicine = async (medicineId) => {
-    const medicine =
-        await medicineModel.getMedicineById(
-            medicineId
-        );
+    const medicine = await medicineModel.getMedicineById(medicineId);
 
     if (!medicine) {
         throw new Error("Medicine not found");
     }
 
-    const medicines =
-        await medicineModel.getMedicines({
-            category: medicine.category
-        });
+    const medicines = await medicineModel.getMedicines({
+        category: medicine.category
+    });
 
     return medicines.filter(
-        item =>
-            item.medicine_id !== medicine.medicine_id
+        item => item.medicine_id !== medicine.medicine_id
     );
 };
 
 const recommendBySymptoms = async (symptoms) => {
-    const medicines =
-        await medicineModel.getMedicines({});
+    const medicines = await medicineModel.getMedicines({});
 
     const keywords = symptoms
         .toLowerCase()
-        .split(",");
+        .split(",")
+        .map(keyword => keyword.trim());
 
     return medicines.filter(medicine =>
         keywords.some(keyword =>
-            medicine.name
+            medicine.medicine_name &&
+            medicine.medicine_name
                 .toLowerCase()
-                .includes(keyword.trim())
+                .includes(keyword)
         )
     );
 };
