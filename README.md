@@ -286,7 +286,7 @@ docker start medistock-redis
 
 ## 👨‍💻 Developed By
 
-**Bhavish Rai**
+**Bhavish Rai** and **Srijan A R**
 
 Department of Computer Science & Engineering
 
